@@ -430,7 +430,7 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 - **Total Runs:** {self.stats['runs']}
 
 ## 📁 Folder Structure
-/
+```/
 ├── IOCs/ # Daily collected IOCs
 │ └── YYYY-MM-DD/ # Organized by date
 ├── Yara/ # Daily collected YARA rules
@@ -439,7 +439,7 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 ├── scripts/ # Collection scripts
 ├── data/ # Memory files (duplicate detection)
 ├── weekly_reports/ # Weekly summary reports
-└── monthly_archives/ # Monthly ZIP archives
+└── monthly_archives/ # Monthly ZIP archives```
 
 ## 🔍 Sources
 
