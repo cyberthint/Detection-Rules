@@ -1,0 +1,27 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "ShadowV2 Casts a Shadow Over IoT Devices",
+  "type": "CVE",
+  "value": "CVE-2009-2765",
+  "description": "A new Mirai variant called ShadowV2 has been observed spreading through IoT vulnerabilities during a global AWS disruption. The malware targeted multiple countries and industries worldwide, exploiting",
+  "tags": [
+    "mirai",
+    "cve-2009-2765",
+    "aws",
+    "cve-2022-37055",
+    "c2",
+    "cve-2024-10915",
+    "shadowv2",
+    "cve-2024-53375",
+    "cve-2024-10914",
+    "cve-2023-52163",
+    "ddos",
+    "cve-2020-25506",
+    "botnet",
+    "vulnerability",
+    "cve-2024-3721",
+    "iot"
+  ],
+  "created": "2025-11-27T07:37:54.726000",
+  "reference": "https://otx.alienvault.com/pulse/6927ffd2068d6127f3387514"
+}

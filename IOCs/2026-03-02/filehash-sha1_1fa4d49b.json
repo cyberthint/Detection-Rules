@@ -1,0 +1,19 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Disrupting the GRIDTIDE Global Cyber Espionage Campaign",
+  "type": "FileHash-SHA1",
+  "value": "be0a15969da42365acc8cbc91c9e8bed9b6362f5",
+  "description": "A global espionage campaign targeting telecommunications and government organizations across four continents has been disrupted. The threat actor, UNC2814, is suspected to be linked to China and has b",
+  "tags": [
+    "cyber espionage",
+    "google sheets",
+    "gridtide",
+    "china",
+    "backdoor",
+    "telecommunications",
+    "api abuse",
+    "government"
+  ],
+  "created": "2026-02-26T11:04:20.880000",
+  "reference": "https://otx.alienvault.com/pulse/69a028b4c9477a7b9420328f"
+}
