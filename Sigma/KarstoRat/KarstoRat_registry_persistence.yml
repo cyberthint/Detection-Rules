@@ -1,0 +1,18 @@
+title: Project1 RAT Scheduled Task
+id: a7b2c4d5-6e8f-9a0b-1c2d-3e4f5a6b7c8d
+status: experimental
+description: Project1 RAT'nin scheduled task oluşturmasını tespit eder
+author: Analyst
+date: 2026-02-27
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4698
+        TaskName: 'SystemCheck'
+        Command|contains: 'SecurityService.exe'
+    condition: selection
+falsepositives:
+    - Low
+level: high
