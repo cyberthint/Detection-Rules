@@ -2,7 +2,6 @@ import requests
 import json
 import hashlib
 import os
-import base64
 from datetime import datetime, timedelta
 from pathlib import Path
 import pickle
@@ -13,41 +12,40 @@ import zipfile
 from collections import defaultdict
 
 # Logging
-logging.basicConfig(level=logging.INFO, format='%(astime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class ThreatIntelCollector:
     def __init__(self):
-        """Detection-Rules için Otomatik Threat Intel Toplayıcı"""
+        """Automatic Threat Intelligence Collector for Detection-Rules"""
         
-        # GitHub token (otomatik olarak Actions'tan gelir)
+        # GitHub token (from Actions)
         self.github_token = os.environ.get('GITHUB_TOKEN')
         
-        # Telegram Anahtarları (GitHub Secrets'tan gelir)
+        # Telegram (from GitHub Secrets)
         self.telegram_token = os.environ.get('TELEGRAM_TOKEN')
         self.telegram_chat_id = os.environ.get('TELEGRAM_CHAT_ID')
         
-        # OTX API (GitHub Secrets'tan gelir)
+        # OTX API (from GitHub Secrets)
         self.otx_key = os.environ.get('OTX_API_KEY')
         
-        # Eğer OTX API anahtarı yoksa uyarı ver ama devam et
         if not self.otx_key:
-            logger.warning("⚠️ OTX_API_KEY bulunamadı! IOC çekilemeyecek.")
+            logger.warning("⚠️ OTX_API_KEY not found! IOCs will not be collected.")
         
-        # Veri klasörleri - Detection-Rules yapısına göre düzenlendi
+        # Data directories
         self.data_dir = Path("data")
-        self.ioc_dir = Path("IOCs")  # Büyük harf ile başlıyor
-        self.yara_dir = Path("Yara")  # Büyük harf ile başlıyor
+        self.ioc_dir = Path("IOCs")
+        self.yara_dir = Path("Yara")
         self.report_dir = Path("weekly_reports")
         self.archive_dir = Path("monthly_archives")
-        self.scripts_dir = Path("scripts")  # Scripts klasörü
+        self.scripts_dir = Path("scripts")
         
-        # Tüm klasörleri oluştur
+        # Create all directories
         for dir_path in [self.data_dir, self.ioc_dir, self.yara_dir, self.report_dir, self.archive_dir, self.scripts_dir]:
             dir_path.mkdir(exist_ok=True)
-            logger.info(f"📁 Klasör kontrol edildi: {dir_path}")
+            logger.info(f"📁 Directory checked: {dir_path}")
         
-        # Hafıza (daha önce görülenler)
+        # Memory (already seen items)
         self.seen_iocs = self.load_data("seen_iocs.pkl", set())
         self.seen_yara = self.load_data("seen_yara.pkl", set())
         self.stats = self.load_data("stats.json", {
@@ -59,47 +57,47 @@ class ThreatIntelCollector:
             'runs': 0
         })
         
-        # YARA kaynakları (GÜNCEL ve GÜVENİLİR)
+        # YARA sources
         self.yara_sources = [
             {
                 'name': 'Neo23x0 Signature Base',
-                'url': 'https://api.github.com/repos/Neo23x0/signature-base/contents/yara',
-                'branch': 'master',
+                'url': 'https://github.com/Neo23x0/signature-base',
+                'api_url': 'https://api.github.com/repos/Neo23x0/signature-base/contents/yara',
                 'active': True
             },
             {
                 'name': 'YARA-Rules Project',
-                'url': 'https://api.github.com/repos/Yara-Rules/rules/contents/',
-                'branch': 'master',
+                'url': 'https://github.com/Yara-Rules/rules',
+                'api_url': 'https://api.github.com/repos/Yara-Rules/rules/contents/',
                 'active': True
             },
             {
                 'name': 'Intezer YARA',
-                'url': 'https://api.github.com/repos/intezer/yara-rules/contents/',
-                'branch': 'master',
+                'url': 'https://github.com/intezer/yara-rules',
+                'api_url': 'https://api.github.com/repos/intezer/yara-rules/contents/',
                 'active': True
             },
             {
                 'name': 'InQuest Awesome YARA',
-                'url': 'https://api.github.com/repos/InQuest/awesome-yara/contents/rules',
-                'branch': 'master',
+                'url': 'https://github.com/InQuest/awesome-yara',
+                'api_url': 'https://api.github.com/repos/InQuest/awesome-yara/contents/rules',
                 'active': True
             },
             {
                 'name': 'ESET Malware Research',
-                'url': 'https://api.github.com/repos/eset/malware-research/contents/yara',
-                'branch': 'master',
+                'url': 'https://github.com/eset/malware-research',
+                'api_url': 'https://api.github.com/repos/eset/malware-research/contents/yara',
                 'active': True
             }
         ]
         
-        logger.info("✅ Detection-Rules Threat Intel Collector başlatıldı")
-        logger.info(f"📊 Hafızada: {len(self.seen_iocs)} IOC, {len(self.seen_yara)} YARA")
+        logger.info("✅ Threat Intel Collector started")
+        logger.info(f"📊 Memory: {len(self.seen_iocs)} IOCs, {len(self.seen_yara)} YARA rules")
 
     def send_telegram_message(self, message):
-        """Telegram'a bildirim gönderir"""
+        """Send notification to Telegram"""
         if not self.telegram_token or not self.telegram_chat_id:
-            logger.info("ℹ️ Telegram bildirimi gönderilmedi (token veya chat ID yok)")
+            logger.info("ℹ️ Telegram notification not sent (token or chat ID missing)")
             return
 
         url = f"https://api.telegram.org/bot{self.telegram_token}/sendMessage"
@@ -112,38 +110,38 @@ class ThreatIntelCollector:
         try:
             response = requests.post(url, json=payload, timeout=15)
             if response.status_code == 200:
-                logger.info("✅ Telegram bildirimi gönderildi")
+                logger.info("✅ Telegram notification sent")
             else:
-                logger.error(f"❌ Telegram hatası: {response.status_code}")
+                logger.error(f"❌ Telegram error: {response.status_code}")
         except Exception as e:
-            logger.error(f"❌ Telegram bağlantı hatası: {e}")
+            logger.error(f"❌ Telegram connection error: {e}")
     
     def load_data(self, filename, default):
-        """Veri yükle"""
+        """Load data from file"""
         filepath = self.data_dir / filename
         try:
             if filepath.exists():
                 with open(filepath, 'rb') as f:
                     return pickle.load(f)
         except Exception as e:
-            logger.error(f"❌ Veri yüklenirken hata: {e}")
+            logger.error(f"❌ Error loading data: {e}")
         return default
     
     def save_data(self, filename, data):
-        """Veri kaydet"""
+        """Save data to file"""
         filepath = self.data_dir / filename
         try:
             with open(filepath, 'wb') as f:
                 pickle.dump(data, f)
         except Exception as e:
-            logger.error(f"❌ Veri kaydedilirken hata: {e}")
+            logger.error(f"❌ Error saving data: {e}")
     
     def calculate_hash(self, content):
-        """Hash hesapla (tekrar kontrolü için)"""
+        """Calculate hash for duplicate check"""
         return hashlib.sha256(str(content).encode()).hexdigest()
     
     def is_new_ioc(self, value, source):
-        """Yeni IOC mi?"""
+        """Check if IOC is new"""
         hash_val = self.calculate_hash(f"{source}:{value}")
         if hash_val not in self.seen_iocs:
             self.seen_iocs.add(hash_val)
@@ -153,7 +151,7 @@ class ThreatIntelCollector:
         return False
     
     def is_new_yara(self, name, content, source):
-        """Yeni YARA kuralı mı?"""
+        """Check if YARA rule is new"""
         content_preview = content[:1000] if content else ""
         hash_val = self.calculate_hash(f"{source}:{name}:{content_preview}")
         if hash_val not in self.seen_yara:
@@ -164,14 +162,14 @@ class ThreatIntelCollector:
         return False
     
     def fetch_github_yara(self, source):
-        """GitHub'dan YARA kurallarını çek"""
+        """Fetch YARA rules from GitHub"""
         try:
             headers = {}
             if self.github_token:
                 headers['Authorization'] = f'token {self.github_token}'
             
-            logger.info(f"🔍 {source['name']} kontrol ediliyor...")
-            response = requests.get(source['url'], headers=headers, timeout=30)
+            logger.info(f"🔍 Checking {source['name']}...")
+            response = requests.get(source['api_url'], headers=headers, timeout=30)
             
             if response.status_code == 200:
                 files = response.json()
@@ -180,10 +178,10 @@ class ThreatIntelCollector:
                     if isinstance(f, dict) and f.get('type') == 'file' and f['name'].endswith(('.yar', '.yara', '.rule')):
                         yara_files.append(f)
                 
-                logger.info(f"  📂 {len(yara_files)} YARA dosyası bulundu")
+                logger.info(f"  📂 Found {len(yara_files)} YARA files")
                 
                 new_rules = []
-                for file in yara_files[:50]:
+                for file in yara_files[:50]:  # Limit to 50 files per source
                     try:
                         content_response = requests.get(file['download_url'], timeout=30)
                         if content_response.status_code == 200:
@@ -194,49 +192,47 @@ class ThreatIntelCollector:
                                     'source': source['name'],
                                     'name': file['name'],
                                     'content': content,
-                                    'path': file.get('path', ''),
                                     'url': file['html_url'],
-                                    'size': file.get('size', 0),
                                     'collected_at': datetime.now().isoformat()
                                 }
                                 new_rules.append(rule_info)
-                                logger.info(f"  ✅ Yeni: {file['name']}")
+                                logger.info(f"  ✅ New: {file['name']}")
                     except Exception as e:
-                        logger.error(f"  ❌ {file['name']} okunamadı: {e}")
+                        logger.error(f"  ❌ Error reading {file['name']}: {e}")
                 
-                logger.info(f"  📥 {len(new_rules)} yeni YARA kuralı bulundu")
+                logger.info(f"  📥 Found {len(new_rules)} new YARA rules")
                 return new_rules
             else:
-                logger.error(f"❌ {source['name']} hatası: {response.status_code}")
+                logger.error(f"❌ {source['name']} error: {response.status_code}")
                 return []
                 
         except Exception as e:
-            logger.error(f"❌ {source['name']} bağlantı hatası: {e}")
+            logger.error(f"❌ Connection error to {source['name']}: {e}")
             return []
     
     def fetch_alienvault_iocs(self):
-        """AlienVault OTX'den IOC'leri al"""
+        """Fetch IOCs from AlienVault OTX"""
         try:
             if not self.otx_key:
-                logger.warning("⚠️ OTX API anahtarı yok, IOC çekilemiyor")
+                logger.warning("⚠️ OTX API key missing, skipping IOC collection")
                 return []
             
             url = "https://otx.alienvault.com/api/v1/pulses/subscribed"
             headers = {"X-OTX-API-KEY": self.otx_key}
             params = {"limit": 10, "page": 1}
             
-            logger.info("🔍 AlienVault OTX kontrol ediliyor...")
+            logger.info("🔍 Checking AlienVault OTX...")
             response = requests.get(url, headers=headers, params=params, timeout=60)
             
             if response.status_code == 200:
                 data = response.json()
                 pulses = data.get('results', [])
-                logger.info(f"  📂 {len(pulses)} pulse bulundu")
+                logger.info(f"  📂 Found {len(pulses)} pulses")
                 
                 new_iocs = []
                 for pulse in pulses:
                     indicators = pulse.get('indicators', [])
-                    for ioc in indicators[:5]:
+                    for ioc in indicators[:5]:  # Limit to 5 IOCs per pulse
                         ioc_value = ioc.get('indicator')
                         ioc_type = ioc.get('type', 'unknown')
                         
@@ -253,18 +249,18 @@ class ThreatIntelCollector:
                             }
                             new_iocs.append(ioc_info)
                 
-                logger.info(f"  📥 {len(new_iocs)} yeni IOC bulundu")
+                logger.info(f"  📥 Found {len(new_iocs)} new IOCs")
                 return new_iocs
             else:
-                logger.error(f"❌ AlienVault hatası: {response.status_code}")
+                logger.error(f"❌ AlienVault error: {response.status_code}")
                 return []
                 
         except Exception as e:
-            logger.error(f"❌ AlienVault bağlantı hatası: {e}")
+            logger.error(f"❌ AlienVault connection error: {e}")
             return []
     
     def save_yara_rules(self, rules):
-        """YARA kurallarını günlük klasöre kaydet"""
+        """Save YARA rules to daily folder"""
         if not rules:
             return []
         
@@ -275,6 +271,7 @@ class ThreatIntelCollector:
         saved_files = []
         for rule in rules:
             try:
+                # Sanitize filename
                 safe_name = re.sub(r'[^\w\-_\.]', '_', rule['name'])
                 if len(safe_name) > 100:
                     name_part = safe_name[:50]
@@ -285,11 +282,12 @@ class ThreatIntelCollector:
                 
                 filepath = today_dir / safe_name
                 
+                # Add header with metadata
                 header = f"""// ════════════════════════════════════════════════════════
-// Kaynak    : {rule['source']}
-// Kural     : {rule['name']}
-// Toplanma  : {rule['collected_at']}
-// Orijinal  : {rule['url']}
+// Source     : {rule['source']}
+// Rule       : {rule['name']}
+// Collected  : {rule['collected_at']}
+// Original   : {rule['url']}
 // ════════════════════════════════════════════════════════
 
 """
@@ -297,14 +295,14 @@ class ThreatIntelCollector:
                     f.write(header + rule['content'])
                 
                 saved_files.append(str(filepath))
-                logger.info(f"  💾 Kaydedildi: {filepath}")
+                logger.info(f"  💾 Saved: {filepath}")
             except Exception as e:
-                logger.error(f"  ❌ {rule['name']} kaydedilemedi: {e}")
+                logger.error(f"  ❌ Error saving {rule['name']}: {e}")
         
         return saved_files
     
     def save_iocs(self, iocs):
-        """IOC'leri günlük klasöre kaydet"""
+        """Save IOCs to daily folder"""
         if not iocs:
             return []
         
@@ -325,16 +323,16 @@ class ThreatIntelCollector:
                 
                 saved_files.append(str(filepath))
             except Exception as e:
-                logger.error(f"  ❌ IOC kaydedilemedi: {e}")
+                logger.error(f"  ❌ Error saving IOC: {e}")
         
-        logger.info(f"  💾 {len(saved_files)} IOC kaydedildi")
+        logger.info(f"  💾 Saved {len(saved_files)} IOCs")
         return saved_files
     
     def create_weekly_report(self):
-        """Haftalık rapor oluştur"""
+        """Create weekly report"""
         today = datetime.now()
         
-        if today.weekday() == 0:  # Pazartesi
+        if today.weekday() == 0:  # Monday
             week_num = today.strftime('%W')
             year = today.strftime('%Y')
             
@@ -353,30 +351,25 @@ class ThreatIntelCollector:
                 if yara_day_dir.exists():
                     week_yara += len(list(yara_day_dir.glob("*.yar*")))
             
-            report = "# 📊 Haftalık Tehdit İstihbaratı Raporu\n"
-            report += f"**Hafta:** {week_num} - {year}\n"
-            report += f"**Tarih:** {today.strftime('%d.%m.%Y')}\n\n"
-            report += "## 📈 Özet İstatistikler\n"
-            report += f"- **Toplam IOC:** {self.stats['total_iocs']}\n"
-            report += f"- **Toplam YARA Kuralı:** {self.stats['total_yara']}\n"
-            report += f"- **Bu Hafta Eklenen IOC:** {week_iocs}\n"
-            report += f"- **Bu Hafta Eklenen YARA:** {week_yara}\n"
-            report += f"- **Çalışma Sayısı:** {self.stats['runs']}\n\n"
-            report += "## 🔍 Kaynak Dağılımı\n"
-            report += "```json\n"
-            report += json.dumps(dict(self.stats['by_source']), indent=2, ensure_ascii=False)
-            report += "\n```\n\n"
+            report = "# 📊 Weekly Threat Intelligence Report\n"
+            report += f"**Week:** {week_num} - {year}\n"
+            report += f"**Date:** {today.strftime('%d.%m.%Y')}\n\n"
+            report += "## 📈 Summary Statistics\n"
+            report += f"- **Total IOCs:** {self.stats['total_iocs']}\n"
+            report += f"- **Total YARA Rules:** {self.stats['total_yara']}\n"
+            report += f"- **Added This Week:** {week_iocs} IOCs, {week_yara} YARA\n"
+            report += f"- **Total Runs:** {self.stats['runs']}\n\n"
             
             with open(report_file, 'w', encoding='utf-8') as f:
                 f.write(report)
             
-            logger.info(f"📊 Haftalık rapor oluşturuldu: {report_file}")
+            logger.info(f"📊 Weekly report created: {report_file}")
     
     def create_monthly_archive(self):
-        """Aylık arşiv oluştur"""
+        """Create monthly archive"""
         today = datetime.now()
         
-        if today.day == 1:  # Ayın ilk günü
+        if today.day == 1:  # First day of month
             last_month = today - timedelta(days=1)
             month = last_month.strftime('%Y-%m')
             
@@ -400,10 +393,13 @@ class ThreatIntelCollector:
                                 zipf.write(file, f"Yara/{date}/{file.name}")
                                 files_added += 1
                 
-                logger.info(f"📦 Aylık arşiv oluşturuldu: {archive_name} ({files_added} dosya)")
+                if files_added > 0:
+                    logger.info(f"📦 Monthly archive created: {archive_name} ({files_added} files)")
+                else:
+                    logger.info(f"📦 No files to archive for {month}")
     
     def update_readme(self):
-        """README.md'yi otomatik güncelle"""
+        """Automatically update README.md (English)"""
         try:
             week_iocs = 0
             week_yara = 0
@@ -419,92 +415,108 @@ class ThreatIntelCollector:
                 if yara_day_dir.exists():
                     week_yara += len(list(yara_day_dir.glob("*.yar*")))
             
-            yara_sources_list = "\n".join([f"- **{s['name']}**" for s in self.yara_sources if s.get('active', True)])
+            # Format YARA sources list
+            yara_sources_list = ""
+            for source in self.yara_sources:
+                if source.get('active', True):
+                    yara_sources_list += f"- [{source['name']}]({source['url']})\n"
             
             readme_content = f"""# 🛡️ Detection Rules
 
-Bu repository **otomatik olarak** her 6 saatte bir güncellenir. Yeni çıkan IOC'leri ve YARA kurallarını toplar ve düzenler.
+This repository is **automatically updated** every 6 hours with the latest YARA rules and IOCs (Indicators of Compromise).
 
-## 📊 Güncel İstatistikler
-- **Toplam IOC:** {self.stats['total_iocs']}
-- **Toplam YARA Kuralı:** {self.stats['total_yara']}
-- **Son 7 Gün:** +{week_iocs} IOC, +{week_yara} YARA
-- **Son Güncelleme:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-- **Çalışma Sayısı:** {self.stats['runs']}
+## 📊 Current Statistics
+- **Total IOCs:** {self.stats['total_iocs']}
+- **Total YARA Rules:** {self.stats['total_yara']}
+- **Last 7 Days:** +{week_iocs} IOCs, +{week_yara} YARA
+- **Last Update:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+- **Total Runs:** {self.stats['runs']}
 
-## 📁 Klasör Yapısı
-- `/IOCs/`: Günlük toplanan IOC'ler
-- `/Yara/`: Toplanan YARA kuralları
-- `/weekly_reports/`: Otomatik oluşturulan haftalık özetler
-- `/monthly_archives/`: Zip formatında aylık yedekler
+## 📁 Folder Structure
+/
+├── IOCs/ # Daily collected IOCs
+│ └── YYYY-MM-DD/ # Organized by date
+├── Yara/ # Daily collected YARA rules
+│ └── YYYY-MM-DD/ # Organized by date
+├── Sigma/ # Sigma rules (coming soon)
+├── scripts/ # Collection scripts
+├── data/ # Memory files (duplicate detection)
+├── weekly_reports/ # Weekly summary reports
+└── monthly_archives/ # Monthly ZIP archives
 
-## 🔍 Takip Edilen Kaynaklar
-{yara_sources_list}
+## 📞 Contact
+**cyberthint Team**
 
-- **AlienVault OTX** (IOC'ler için)
-
-## 🤖 Otomatik Güncelleme
-Bu repository **cyberthint/Detection-Rules** için otomatik olarak çalışır.
+---
+*Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
 """
             with open("README.md", "w", encoding="utf-8") as f:
                 f.write(readme_content)
                 
-            logger.info("✅ README.md güncellendi")
+            logger.info("✅ README.md updated successfully")
         except Exception as e:
-            logger.error(f"❌ README güncellenirken hata: {e}")
+            logger.error(f"❌ README update error: {e}")
 
     def run(self):
-        """Tüm toplama ve arşivleme sürecini başlatır"""
+        """Main collection process"""
+        start_time = time.time()
         logger.info("="*60)
-        logger.info("🚀 Detection-Rules Toplama Süreci Başlıyor...")
-        self.stats['runs'] += 1
+        logger.info("🚀 Detection-Rules Collection Process Started...")
+        logger.info(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
+        self.stats['runs'] += 1
         new_iocs_count = 0
         new_yara_count = 0
         
-        # 1. IOC'leri topla
-        logger.info("\n📥 IOC'LER TOPLANIYOR...")
+        # 1. Collect IOCs
+        logger.info("\n📥 COLLECTING IOCs...")
         iocs = self.fetch_alienvault_iocs()
-        saved_iocs = self.save_iocs(iocs)
-        new_iocs_count += len(saved_iocs) if saved_iocs else 0
+        if iocs:
+            saved_iocs = self.save_iocs(iocs)
+            new_iocs_count = len(saved_iocs)
         
-        # 2. YARA Kurallarını topla
-        logger.info("\n📥 YARA KURALLARI TOPLANIYOR...")
+        # 2. Collect YARA rules
+        logger.info("\n📥 COLLECTING YARA RULES...")
         for source in self.yara_sources:
             if source.get('active', True):
                 rules = self.fetch_github_yara(source)
-                saved_rules = self.save_yara_rules(rules)
-                new_yara_count += len(saved_rules) if saved_rules else 0
-                
-        # 3. İstatistikleri ve tracker verilerini güncelle
+                if rules:
+                    saved_rules = self.save_yara_rules(rules)
+                    new_yara_count += len(saved_rules)
+        
+        # 3. Update statistics
         self.stats['last_update'] = datetime.now().isoformat()
         self.save_data("stats.json", self.stats)
         self.save_data("seen_iocs.pkl", self.seen_iocs)
         self.save_data("seen_yara.pkl", self.seen_yara)
         
-        # 4. Raporlama
-        logger.info("\n📊 RAPORLAR HAZIRLANIYOR...")
+        # 4. Reporting
+        logger.info("\n📊 GENERATING REPORTS...")
         self.create_weekly_report()
         self.create_monthly_archive()
         self.update_readme()
         
-        # 5. Telegram'a Özet Bildirim Gönder
+        # 5. Send Telegram notification
         if new_iocs_count > 0 or new_yara_count > 0:
             summary_msg = (
-                f"🤖 <b>Detection-Rules Güncellendi</b>\n\n"
-                f"📥 <b>Yeni Eklenenler:</b>\n"
-                f"🔸 Yeni IOC: <b>{new_iocs_count}</b>\n"
-                f"🔸 Yeni YARA: <b>{new_yara_count}</b>\n\n"
-                f"📊 <b>Genel Toplam:</b>\n"
-                f"🔹 Toplam IOC: {self.stats['total_iocs']}\n"
-                f"🔹 Toplam YARA: {self.stats['total_yara']}\n\n"
+                f"🤖 <b>Detection-Rules Updated</b>\n\n"
+                f"📥 <b>New Additions:</b>\n"
+                f"🔸 New IOCs: <b>{new_iocs_count}</b>\n"
+                f"🔸 New YARA: <b>{new_yara_count}</b>\n\n"
+                f"📊 <b>Total:</b>\n"
+                f"🔹 Total IOCs: {self.stats['total_iocs']}\n"
+                f"🔹 Total YARA: {self.stats['total_yara']}\n\n"
                 f"🔗 https://github.com/cyberthint/Detection-Rules"
             )
             self.send_telegram_message(summary_msg)
+        else:
+            self.send_telegram_message("🤖 <b>Detection-Rules Check</b>\n\n📭 No new IOCs or YARA rules found.")
         
+        elapsed_time = time.time() - start_time
         logger.info(f"\n{'='*60}")
-        logger.info(f"✅ İŞLEM TAMAMLANDI - Yeni IOC: {new_iocs_count}, Yeni YARA: {new_yara_count}")
-        logger.info(f"📊 Toplam: {self.stats['total_iocs']} IOC, {self.stats['total_yara']} YARA")
+        logger.info(f"✅ PROCESS COMPLETED - New IOCs: {new_iocs_count}, New YARA: {new_yara_count}")
+        logger.info(f"📊 Total: {self.stats['total_iocs']} IOCs, {self.stats['total_yara']} YARA")
+        logger.info(f"⏱️ Time: {elapsed_time:.2f} seconds")
         logger.info(f"{'='*60}")
 
 if __name__ == "__main__":

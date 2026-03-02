@@ -1,0 +1,49 @@
+name: Update YARA Rules & IOCs
+
+on:
+  schedule:
+    # Her 6 saatte bir çalış
+    - cron: '0 */6 * * *'
+  # Manuel tetikleme için
+  workflow_dispatch:
+  # Push olduğunda da çalışsın (test için)
+  push:
+    branches: [ main ]
+
+jobs:
+  update-threat-intel:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install requests GitPython
+    
+    - name: Run Threat Intel Collector
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
+      run: |
+        python scripts/threat_intel_tracker.py
+    
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add IOCs/ Yara/ data/ weekly_reports/ monthly_archives/ README.md
+        git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 Automatic update: $(date +'%Y-%m-%d %H:%M:%S')" && git push)
