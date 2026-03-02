@@ -1,0 +1,21 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Interlock Ransomware: New Techniques, Same Old Tricks",
+  "type": "domain",
+  "value": "advisory.md",
+  "description": "The Interlock ransomware group continues to target organizations worldwide, particularly in the UK and US education sector. Unlike other ransomware groups, Interlock operates independently, developing",
+  "tags": [
+    "zero-day",
+    "data exfiltration",
+    "hotta killer",
+    "mintloader",
+    "education sector",
+    "interlockrat",
+    "lateral movement",
+    "ransomware",
+    "nodesnakerat",
+    "persistence"
+  ],
+  "created": "2026-01-30T08:23:45.232000",
+  "reference": "https://otx.alienvault.com/pulse/697c6a911d427c42aa6d16e5"
+}

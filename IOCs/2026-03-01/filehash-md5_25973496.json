@@ -1,0 +1,20 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Meet IClickFix: a widespread framework using the ClickFix tactic",
+  "type": "FileHash-MD5",
+  "value": "3aabcd7c81425b3b9327a2bf643251c6",
+  "description": "IClickFix is a malicious framework that compromises WordPress sites to distribute malware using the ClickFix social engineering tactic. Active since December 2024, it has infected over 3,800 WordPress",
+  "tags": [
+    "emmenhtal loader",
+    "netsupport rat",
+    "watering hole",
+    "xfiles stealer",
+    "social engineering",
+    "clickfix",
+    "wordpress",
+    "javascript",
+    "captcha"
+  ],
+  "created": "2026-01-30T08:20:09.209000",
+  "reference": "https://otx.alienvault.com/pulse/697c69b9af67a1f288275176"
+}

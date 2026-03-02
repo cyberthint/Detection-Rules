@@ -1,0 +1,20 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "NFCShare Android Trojan: NFC card data theft via malicious APK",
+  "type": "FileHash-SHA1",
+  "value": "faf180d3c26db7b724a6f6c307282417dbed16a6",
+  "description": "A new Android trojan, named NFCShare, has been discovered targeting Deutsche Bank customers through a phishing campaign. The malware, disguised as a banking app update, prompts users to perform a fake",
+  "tags": [
+    "card theft",
+    "android",
+    "websocket",
+    "data exfiltration",
+    "phishing",
+    "nfc",
+    "banking",
+    "trojan",
+    "nfcshare"
+  ],
+  "created": "2026-01-30T08:18:00.506000",
+  "reference": "https://otx.alienvault.com/pulse/697c693880e53e3f443b484c"
+}

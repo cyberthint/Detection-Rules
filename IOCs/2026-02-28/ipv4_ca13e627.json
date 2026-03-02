@@ -1,0 +1,15 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Webscanners 2018-02-09  thru current day",
+  "type": "IPv4",
+  "value": "134.122.184.20",
+  "description": "Automated detection of webscanners based on 404",
+  "tags": [
+    "webscanner, bruteforce, web app attack",
+    "probing",
+    "webscan",
+    "scanning"
+  ],
+  "created": "2018-02-10T00:36:00.396000",
+  "reference": "https://otx.alienvault.com/pulse/5a7e3e70c44e7b48947593a7"
+}

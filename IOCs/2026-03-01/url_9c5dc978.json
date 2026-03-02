@@ -1,0 +1,10 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Phishing URLs",
+  "type": "URL",
+  "value": "https://e-serviceparts.info/landingpages/7ce652d6-3f52-48de-8c1b-8d3be0f7c1e4/8k0GKMakDrhNudopX9jChFPTmQqQZbzyG5aWQcaYa6k",
+  "description": "Phishing URLs classified using a ML model",
+  "tags": [],
+  "created": "2020-04-16T09:36:18.938000",
+  "reference": "https://otx.alienvault.com/pulse/5e98271289d56c79998870d9"
+}

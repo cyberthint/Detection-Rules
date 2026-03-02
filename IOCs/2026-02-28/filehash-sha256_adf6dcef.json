@@ -1,0 +1,25 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Can't stop, won't stop: TA584 innovates initial access",
+  "type": "FileHash-SHA256",
+  "value": "bbedc389af45853493c95011d9857f47241a36f7f159305b097089866502ac99",
+  "description": "TA584, a prominent initial access broker targeting organizations globally, demonstrated significant changes in attack strategies throughout 2025. The actor expanded its global targeting, adopted Click",
+  "tags": [
+    "xworm",
+    "email campaigns",
+    "ldr4",
+    "cybercrime",
+    "dcrat",
+    "xeno rat",
+    "clickfix",
+    "malware delivery",
+    "cobalt strike",
+    "tsundere bot",
+    "ursnif",
+    "warmcookie",
+    "initial access broker",
+    "social engineering"
+  ],
+  "created": "2026-01-28T18:26:15.886000",
+  "reference": "https://otx.alienvault.com/pulse/697a54c77c23553aa2d3be96"
+}

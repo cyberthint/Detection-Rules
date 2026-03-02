@@ -1,0 +1,19 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "PureRAT: Attacker Now Using AI to Build Toolset",
+  "type": "URL",
+  "value": "https://ginten555333.com/Libraries/UnZipV2",
+  "description": "A Vietnamese threat actor is employing AI to develop code for an ongoing phishing campaign delivering PureRAT malware and other payloads. The attacks begin with phishing emails disguised as job opport",
+  "tags": [
+    "phishing",
+    "ai-assisted",
+    "sideloading",
+    "hvnc",
+    "vietnam",
+    "cybercrime",
+    "job offers",
+    "purerat"
+  ],
+  "created": "2026-01-28T17:20:03.077000",
+  "reference": "https://otx.alienvault.com/pulse/697a454330d96ae56f959ed4"
+}

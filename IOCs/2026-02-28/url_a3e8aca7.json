@@ -1,0 +1,10 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Phishing URLs",
+  "type": "URL",
+  "value": "http://m3e89.shop/",
+  "description": "Phishing URLs classified using a ML model",
+  "tags": [],
+  "created": "2020-04-16T09:36:18.938000",
+  "reference": "https://otx.alienvault.com/pulse/5e98271289d56c79998870d9"
+}

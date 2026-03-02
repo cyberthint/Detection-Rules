@@ -1,0 +1,19 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "New Dohdoor malware campaign targets education and health care",
+  "type": "FileHash-MD5",
+  "value": "17b77ba7b53b37278bbdb0d87c5360b2",
+  "description": "A malicious campaign by threat actor UAT-10027 has been targeting education and healthcare sectors in the United States since December 2025. The campaign utilizes a new backdoor called Dohdoor, which ",
+  "tags": [
+    "healthcare",
+    "dll sideloading",
+    "dns-over-https",
+    "edr bypass",
+    "dohdoor",
+    "backdoor",
+    "united states",
+    "education"
+  ],
+  "created": "2026-02-27T09:32:11.659000",
+  "reference": "https://otx.alienvault.com/pulse/69a1649bf2952cacd54d98fb"
+}

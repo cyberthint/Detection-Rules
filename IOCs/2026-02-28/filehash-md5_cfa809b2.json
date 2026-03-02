@@ -1,0 +1,21 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Botnet Trojan delivered through ClickFix and EtherHiding",
+  "type": "FileHash-MD5",
+  "value": "3536f953ee2381215ecc1001653b03c2",
+  "description": "A sophisticated phishing campaign impersonating Tesseract OCR was discovered, utilizing typosquatting and ClickFix techniques. The attack chain, named OCRFix, employed multi-stage malware deployments ",
+  "tags": [
+    "ocrfix",
+    "etherhiding",
+    "typosquatting",
+    "obfuscation",
+    "botnet",
+    "multi-stage",
+    "phishing",
+    "defense evasion",
+    "bnb smart chain",
+    "clickfix"
+  ],
+  "created": "2026-02-27T09:28:41.886000",
+  "reference": "https://otx.alienvault.com/pulse/69a163c992e9afc70efc55d7"
+}

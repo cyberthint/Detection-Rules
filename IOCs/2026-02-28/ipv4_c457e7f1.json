@@ -1,0 +1,15 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "SSH Brute-Force Honeypot Live",
+  "type": "IPv4",
+  "value": "43.224.248.187",
+  "description": "every host is banned for 3 hours and receives an abuse report from me every 96 hours if it continues",
+  "tags": [
+    "Bruteforce",
+    "Brute-Force",
+    "SSH",
+    "Honeypot"
+  ],
+  "created": "2021-07-13T01:00:09.665000",
+  "reference": "https://otx.alienvault.com/pulse/60ece5998a5b54a5ffe75cb4"
+}

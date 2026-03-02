@@ -1,0 +1,20 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Attack on *stan: Your malware, my C2",
+  "type": "FileHash-MD5",
+  "value": "76a7822a243f338bf3c5bc5c53997c12",
+  "description": "A suspected state-affiliated threat actor has been targeting Kazakh and Afghan entities in a persistent campaign since at least August 2022. The attackers use a Windows-based RAT called KazakRAT, whic",
+  "tags": [
+    "windows",
+    "android",
+    "afghanistan",
+    "kazakrat",
+    "c2 infrastructure",
+    "kazakhstan",
+    "state-sponsored",
+    "espionage",
+    "xploitspy"
+  ],
+  "created": "2026-01-30T08:19:02.693000",
+  "reference": "https://otx.alienvault.com/pulse/697c6976da773afd0b4155a1"
+}

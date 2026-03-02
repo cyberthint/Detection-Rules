@@ -1,0 +1,17 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Approaching Cyclone: Vortex Werewolf Attacks Russia",
+  "type": "FileHash-MD5",
+  "value": "41155d85dbaa61801f95aa183facf4e3",
+  "description": "A new cluster is spreading malware through phishing attacks targeting Russia. The attack methodology involves fake pages that imitate file downloads from Telegram. The article likely details the struc",
+  "tags": [
+    "russia",
+    "phishing",
+    "cyclone",
+    "telegram",
+    "file downloads",
+    "fake pages"
+  ],
+  "created": "2026-01-29T07:39:26.213000",
+  "reference": "https://otx.alienvault.com/pulse/697b0eae1add7406158cd075"
+}

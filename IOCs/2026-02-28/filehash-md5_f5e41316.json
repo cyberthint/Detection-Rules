@@ -1,0 +1,23 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "New malicious npm package 'ambar-src' targets developers with open source malware",
+  "type": "FileHash-MD5",
+  "value": "4a3e7683e0864a04fd34e818709d176b",
+  "description": "A malicious npm package named \"ambar-src\" reached 50,000 downloads in days before being removed from the registry. It uses a preinstall script to execute malicious code during installation, targeting ",
+  "tags": [
+    "yandex cloud",
+    "detection evasion",
+    "preinstall script",
+    "supply chain",
+    "apfell",
+    "mythicagents",
+    "windows",
+    "npm",
+    "linux",
+    "reverse_ssh",
+    "open-source malware",
+    "macos"
+  ],
+  "created": "2026-02-27T09:18:00.513000",
+  "reference": "https://otx.alienvault.com/pulse/69a161489d57df80623a8b5c"
+}

@@ -1,0 +1,20 @@
+{
+  "source": "AlienVault OTX",
+  "pulse": "Threat Intelligence Dossier: TOXICSNAKE",
+  "type": "domain",
+  "value": "refanprediction.shop",
+  "description": "A multi-domain traffic distribution system (TDS) operation was discovered, centered around the domain toxicsnake-wifes.com. The infrastructure serves as a commodity cybercrime TDS farm, routing victim",
+  "tags": [
+    "cybercrime",
+    "obfuscation",
+    "javascript",
+    "burner-domains",
+    "osint",
+    "infrastructure-analysis",
+    "tds",
+    "bulletproof-hosting",
+    "loader"
+  ],
+  "created": "2026-01-30T08:44:03.925000",
+  "reference": "https://otx.alienvault.com/pulse/697c6f532a93bb12de9eaa83"
+}
