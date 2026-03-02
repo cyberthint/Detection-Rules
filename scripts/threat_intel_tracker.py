@@ -429,13 +429,6 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 - **Last Update:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 - **Total Runs:** {self.stats['runs']}
 
-## 🔍 Sources
-
-### YARA Sources
-{yara_sources_list}
-### IOC Sources
-- [AlienVault OTX](https://otx.alienvault.com/)
-
 ## 🤖 Automatic Updates
 | Type | Frequency |
 |------|-----------|
@@ -444,10 +437,6 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 | Weekly Reports | Every Monday |
 | Monthly Archives | 1st day of month |
 
-## 📥 Usage
-Access YARA rules and IOCs by date:
-https://github.com/cyberthint/Detection-Rules/tree/main/Yara/YYYY-MM-DD/
-https://github.com/cyberthint/Detection-Rules/tree/main/IOCs/YYYY-MM-DD/
 
 ## 📞 Contact
 **cyberthint Team**
