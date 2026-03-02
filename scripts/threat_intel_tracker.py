@@ -429,18 +429,6 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 - **Last Update:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 - **Total Runs:** {self.stats['runs']}
 
-## 📁 Folder Structure
-```/
-├── IOCs/ # Daily collected IOCs
-│ └── YYYY-MM-DD/ # Organized by date
-├── Yara/ # Daily collected YARA rules
-│ └── YYYY-MM-DD/ # Organized by date
-├── Sigma/ # Sigma rules (coming soon)
-├── scripts/ # Collection scripts
-├── data/ # Memory files (duplicate detection)
-├── weekly_reports/ # Weekly summary reports
-└── monthly_archives/ # Monthly ZIP archives```
-
 ## 🔍 Sources
 
 ### YARA Sources
