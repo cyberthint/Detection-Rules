@@ -181,7 +181,7 @@ class ThreatIntelCollector:
                 logger.info(f"  📂 Found {len(yara_files)} YARA files")
                 
                 new_rules = []
-                for file in yara_files[:50]:  # Limit to 50 files per source
+                for file in yara_files[:50]:
                     try:
                         content_response = requests.get(file['download_url'], timeout=30)
                         if content_response.status_code == 200:
@@ -232,7 +232,7 @@ class ThreatIntelCollector:
                 new_iocs = []
                 for pulse in pulses:
                     indicators = pulse.get('indicators', [])
-                    for ioc in indicators[:5]:  # Limit to 5 IOCs per pulse
+                    for ioc in indicators[:5]:
                         ioc_value = ioc.get('indicator')
                         ioc_type = ioc.get('type', 'unknown')
                         
@@ -271,7 +271,6 @@ class ThreatIntelCollector:
         saved_files = []
         for rule in rules:
             try:
-                # Sanitize filename
                 safe_name = re.sub(r'[^\w\-_\.]', '_', rule['name'])
                 if len(safe_name) > 100:
                     name_part = safe_name[:50]
@@ -282,7 +281,6 @@ class ThreatIntelCollector:
                 
                 filepath = today_dir / safe_name
                 
-                # Add header with metadata
                 header = f"""// ════════════════════════════════════════════════════════
 // Source     : {rule['source']}
 // Rule       : {rule['name']}
@@ -332,7 +330,7 @@ class ThreatIntelCollector:
         """Create weekly report"""
         today = datetime.now()
         
-        if today.weekday() == 0:  # Monday
+        if today.weekday() == 0:
             week_num = today.strftime('%W')
             year = today.strftime('%Y')
             
@@ -369,7 +367,7 @@ class ThreatIntelCollector:
         """Create monthly archive"""
         today = datetime.now()
         
-        if today.day == 1:  # First day of month
+        if today.day == 1:
             last_month = today - timedelta(days=1)
             month = last_month.strftime('%Y-%m')
             
@@ -398,7 +396,7 @@ class ThreatIntelCollector:
                 else:
                     logger.info(f"📦 No files to archive for {month}")
     
-        def update_readme(self):
+    def update_readme(self):
         """Automatically update README.md (English)"""
         try:
             week_iocs = 0
@@ -415,7 +413,6 @@ class ThreatIntelCollector:
                 if yara_day_dir.exists():
                     week_yara += len(list(yara_day_dir.glob("*.yar*")))
             
-            # Format YARA sources list
             yara_sources_list = ""
             for source in self.yara_sources:
                 if source.get('active', True):
@@ -433,6 +430,39 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 - **Total Runs:** {self.stats['runs']}
 
 ## 📁 Folder Structure
+/
+├── IOCs/ # Daily collected IOCs
+│ └── YYYY-MM-DD/ # Organized by date
+├── Yara/ # Daily collected YARA rules
+│ └── YYYY-MM-DD/ # Organized by date
+├── Sigma/ # Sigma rules (coming soon)
+├── scripts/ # Collection scripts
+├── data/ # Memory files (duplicate detection)
+├── weekly_reports/ # Weekly summary reports
+└── monthly_archives/ # Monthly ZIP archives
+
+## 🔍 Sources
+
+### YARA Sources
+{yara_sources_list}
+### IOC Sources
+- [AlienVault OTX](https://otx.alienvault.com/)
+
+## 🤖 Automatic Updates
+| Type | Frequency |
+|------|-----------|
+| YARA Rules | Every 6 hours |
+| IOCs | Every 6 hours |
+| Weekly Reports | Every Monday |
+| Monthly Archives | 1st day of month |
+
+## 📥 Usage
+Access YARA rules and IOCs by date:
+https://github.com/cyberthint/Detection-Rules/tree/main/Yara/YYYY-MM-DD/
+https://github.com/cyberthint/Detection-Rules/tree/main/IOCs/YYYY-MM-DD/
+
+## 📞 Contact
+**cyberthint Team**
 
 ---
 *Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
@@ -455,14 +485,12 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
         new_iocs_count = 0
         new_yara_count = 0
         
-        # 1. Collect IOCs
         logger.info("\n📥 COLLECTING IOCs...")
         iocs = self.fetch_alienvault_iocs()
         if iocs:
             saved_iocs = self.save_iocs(iocs)
             new_iocs_count = len(saved_iocs)
         
-        # 2. Collect YARA rules
         logger.info("\n📥 COLLECTING YARA RULES...")
         for source in self.yara_sources:
             if source.get('active', True):
@@ -471,19 +499,16 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
                     saved_rules = self.save_yara_rules(rules)
                     new_yara_count += len(saved_rules)
         
-        # 3. Update statistics
         self.stats['last_update'] = datetime.now().isoformat()
         self.save_data("stats.json", self.stats)
         self.save_data("seen_iocs.pkl", self.seen_iocs)
         self.save_data("seen_yara.pkl", self.seen_yara)
         
-        # 4. Reporting
         logger.info("\n📊 GENERATING REPORTS...")
         self.create_weekly_report()
         self.create_monthly_archive()
         self.update_readme()
         
-        # 5. Send Telegram notification
         if new_iocs_count > 0 or new_yara_count > 0:
             summary_msg = (
                 f"🤖 <b>Detection-Rules Updated</b>\n\n"
