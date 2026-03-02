@@ -398,7 +398,7 @@ class ThreatIntelCollector:
                 else:
                     logger.info(f"📦 No files to archive for {month}")
     
-    def update_readme(self):
+        def update_readme(self):
         """Automatically update README.md (English)"""
         try:
             week_iocs = 0
@@ -433,19 +433,6 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 - **Total Runs:** {self.stats['runs']}
 
 ## 📁 Folder Structure
-/
-├── IOCs/ # Daily collected IOCs
-│ └── YYYY-MM-DD/ # Organized by date
-├── Yara/ # Daily collected YARA rules
-│ └── YYYY-MM-DD/ # Organized by date
-├── Sigma/ # Sigma rules (coming soon)
-├── scripts/ # Collection scripts
-├── data/ # Memory files (duplicate detection)
-├── weekly_reports/ # Weekly summary reports
-└── monthly_archives/ # Monthly ZIP archives
-
-## 📞 Contact
-**cyberthint Team**
 
 ---
 *Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
