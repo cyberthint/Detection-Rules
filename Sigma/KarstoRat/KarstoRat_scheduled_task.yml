@@ -1,18 +1,31 @@
-title: Project1 RAT Scheduled Task
+title: KarstoRat Scheduled Task Creation
 id: a7b2c4d5-6e8f-9a0b-1c2d-3e4f5a6b7c8d
 status: experimental
-description: Project1 RAT'nin scheduled task oluşturmasını tespit eder
-author: Analyst
-date: 2026-02-27
+description: Detects KarstoRat creating a scheduled task for persistence
+author: Cyberthint Threat Intelligence Team
+date: 2026-03-03
+modified: 2026-03-03
+references:
+    - https://cyberthint.io/karstorat-rat-case-study
+    - https://github.com/cyberthint/karstorat-detection-rules
+tags:
+    - attack.persistence
+    - attack.t1053.005
+    - malware.karstorat
 logsource:
     product: windows
     service: security
+    definition: 'Requirements: Windows Security Log with Event ID 4698 enabled'
 detection:
     selection:
         EventID: 4698
         TaskName: 'SystemCheck'
-        Command|contains: 'SecurityService.exe'
+        Command|contains|all:
+            - 'SecurityService.exe'
+            - 'C:\Users'
+            - 'AppData'
     condition: selection
 falsepositives:
-    - Low
+    - System administrators creating tasks with similar names
+    - Third-party software installation routines
 level: high
