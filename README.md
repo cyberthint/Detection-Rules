@@ -6,20 +6,8 @@ This repository is **automatically updated** every 6 hours with the latest YARA 
 - **Total IOCs:** 143
 - **Total YARA Rules:** 83
 - **Last 7 Days:** +143 IOCs, +83 YARA
-- **Last Update:** 2026-03-02 20:15:19
-- **Total Runs:** 16
-
-## 📁 Folder Structure
-/
-├── IOCs/ # Daily collected IOCs
-│ └── YYYY-MM-DD/ # Organized by date
-├── Yara/ # Daily collected YARA rules
-│ └── YYYY-MM-DD/ # Organized by date
-├── Sigma/ # Sigma rules (coming soon)
-├── scripts/ # Collection scripts
-├── data/ # Memory files (duplicate detection)
-├── weekly_reports/ # Weekly summary reports
-└── monthly_archives/ # Monthly ZIP archives
+- **Last Update:** 2026-03-02 20:21:07
+- **Total Runs:** 17
 
 ## 🔍 Sources
 
@@ -50,4 +38,4 @@ https://github.com/cyberthint/Detection-Rules/tree/main/IOCs/YYYY-MM-DD/
 **cyberthint Team**
 
 ---
-*Last updated: 2026-03-02 20:15:19*
+*Last updated: 2026-03-02 20:21:07*
