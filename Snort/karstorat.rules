@@ -1,0 +1,214 @@
+##################################################################
+#                    C2 COMMUNICATION RULES                      #
+##################################################################
+
+# Rule 1: KarstoRat C2 Heartbeat Detection
+# Detects periodic beaconing to C2 server
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - C2 Heartbeat Detected"; \
+  flow:to_server,established; \
+  content:"/notify?event=heartbeat"; http_uri; nocase; \
+  content:"user=admin"; http_uri; nocase; \
+  content:"public_ip="; http_uri; nocase; \
+  sid:1000001; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  reference:url,cyberthint.io/karstorat-analysis; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat", attack_target "Windows", malware_family "KarstoRat";)
+
+
+##################################################################
+#                   EXFILTRATION DETECTION RULES                 #
+##################################################################
+
+# Rule 2: KarstoRat System Information Exfiltration
+# Detects system information upload to C2
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - System Info Exfiltration"; \
+  flow:to_server,established; \
+  content:"/upload-sysinfo"; http_uri; nocase; \
+  content:"user=admin"; http_uri; nocase; \
+  sid:1000002; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat";)
+
+# Rule 3: KarstoRat Screen Capture Exfiltration
+# Detects screen capture upload to C2
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - Screen Capture Exfiltration"; \
+  flow:to_server,established; \
+  content:"/upload-screen"; http_uri; nocase; \
+  content:"user=admin"; http_uri; nocase; \
+  sid:1000003; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat";)
+
+# Rule 4: KarstoRat Keylog Exfiltration
+# Detects keystroke log upload to C2
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - Keylog Exfiltration"; \
+  flow:to_server,established; \
+  content:"/upload-keylog"; http_uri; nocase; \
+  sid:1000004; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat";)
+
+# Rule 5: KarstoRat Webcam Exfiltration
+# Detects webcam image upload to C2
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - Webcam Exfiltration"; \
+  flow:to_server,established; \
+  content:"/upload-webcam"; http_uri; nocase; \
+  sid:1000005; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat";)
+
+# Rule 6: KarstoRat Audio Exfiltration
+# Detects audio recording upload to C2
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - Audio Exfiltration"; \
+  flow:to_server,established; \
+  content:"/upload-audio"; http_uri; nocase; \
+  sid:1000006; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat";)
+
+# Rule 7: KarstoRat Discord Token Exfiltration
+# Detects Discord token theft data upload
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - Discord Token Exfiltration"; \
+  flow:to_server,established; \
+  content:"/upload-tokens"; http_uri; nocase; \
+  sid:1000007; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat";)
+
+# Rule 8: KarstoRat File Download Request
+# Detects file download requests from C2
+alert tcp $HOME_NET any -> $EXTERNAL_NET 15144 \
+  (msg:"KARSTORAT - File Download Request"; \
+  flow:to_server,established; \
+  content:"/client-download"; http_uri; nocase; \
+  content:"user=admin"; http_uri; nocase; \
+  sid:1000008; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:1; \
+  metadata:ruleset "KarstoRat";)
+
+
+##################################################################
+#                    C2 PANEL ACCESS RULES                       #
+##################################################################
+
+# Rule 9: KarstoRat Main C2 Panel Access (Port 3071)
+# Detects access attempts to main C2 panel
+alert tcp $HOME_NET any -> $EXTERNAL_NET 3071 \
+  (msg:"KARSTORAT - Main C2 Panel Access (3071)"; \
+  flow:to_server,established; \
+  sid:1000009; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  reference:url,shodan.io/host/212.227.65.132; \
+  classtype:trojan-activity; \
+  priority:2; \
+  metadata:ruleset "KarstoRat", c2_port "3071";)
+
+# Rule 10: KarstoRat Backup C2 Panel Access (Port 3072)
+# Detects access attempts to backup C2 panel
+alert tcp $HOME_NET any -> $EXTERNAL_NET 3072 \
+  (msg:"KARSTORAT - Backup C2 Panel Access (3072)"; \
+  flow:to_server,established; \
+  sid:1000010; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  reference:url,shodan.io/host/212.227.65.132; \
+  classtype:trojan-activity; \
+  priority:2; \
+  metadata:ruleset "KarstoRat", c2_port "3072";)
+
+# Rule 11: KarstoRat Auth Service Access (Port 8080)
+# Detects access attempts to authentication service
+alert tcp $HOME_NET any -> $EXTERNAL_NET 8080 \
+  (msg:"KARSTORAT - Auth Service Access (8080)"; \
+  flow:to_server,established; \
+  sid:1000011; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  reference:url,shodan.io/host/212.227.65.132; \
+  classtype:trojan-activity; \
+  priority:2; \
+  metadata:ruleset "KarstoRat", c2_port "8080";)
+
+
+##################################################################
+#                    SSH ACCESS DETECTION RULES                  #
+##################################################################
+
+# Rule 12: KarstoRat SSH Access Detection (Port 22)
+# Detects SSH access attempts to C2 server
+alert tcp $HOME_NET any -> $EXTERNAL_NET 22 \
+  (msg:"KARSTORAT - SSH Access to C2 Server"; \
+  flow:to_server,established; \
+  dst-ip:212.227.65.132; \
+  sid:1000012; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:2; \
+  metadata:ruleset "KarstoRat";)
+
+# Rule 13: KarstoRat Alternative SSH Access (Port 2022)
+# Detects alternative SSH access attempts to C2 server
+alert tcp $HOME_NET any -> $EXTERNAL_NET 2022 \
+  (msg:"KARSTORAT - Alternative SSH Access to C2 Server"; \
+  flow:to_server,established; \
+  dst-ip:212.227.65.132; \
+  sid:1000013; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:2; \
+  metadata:ruleset "KarstoRat";)
+
+
+##################################################################
+#                    EXTERNAL IP LOOKUP RULES                    #
+##################################################################
+
+# Rule 14: KarstoRat External IP Lookup
+# Detects external IP address retrieval via api.ipify.org
+alert tcp $HOME_NET any -> $EXTERNAL_NET 80 \
+  (msg:"KARSTORAT - External IP Lookup"; \
+  flow:to_server,established; \
+  content:"api.ipify.org"; http_host; nocase; \
+  sid:1000014; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:2; \
+  metadata:ruleset "KarstoRat";)
+
+
+##################################################################
+#                     RATE LIMIT POLICY RULES                    #
+##################################################################
+
+# Rule 15: KarstoRat RateLimit Policy Detection
+# Detects servers using the same rate limit policy as C2
+alert tcp $HOME_NET any -> $EXTERNAL_NET [3050,4010,443] \
+  (msg:"KARSTORAT - RateLimit Policy Detected"; \
+  flow:to_server,established; \
+  content:"RateLimit-Policy: 100;w=900"; http_header; nocase; \
+  sid:1000015; rev:1; \
+  reference:url,github.com/cyberthint/Detection-Rules; \
+  classtype:trojan-activity; \
+  priority:3; \
+  metadata:ruleset "KarstoRat";)
