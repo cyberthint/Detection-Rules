@@ -5,7 +5,9 @@ description: Detects various KarstoRat malware behaviors including registry pers
 author: Cyberthint Threat Intelligence Team
 date: 2026-03-03
 modified: 2026-03-03
-
+references:
+    - https://cyberthint.io/karstorat-rat-case-study
+    - https://github.com/cyberthint/karstorat-detection-rules
 tags:
     - attack.persistence
     - attack.privilege_escalation
