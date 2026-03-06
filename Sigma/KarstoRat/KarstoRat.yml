@@ -1,0 +1,48 @@
+title: KarstoRat Detection Rules
+id: 63b1d3ef-af7c-4f6d-9b8d-5a0a3c4e8f1a
+status: experimental
+description: Detects various KarstoRat malware behaviors including registry persistence, scheduled task creation, and UAC bypass
+author: Cyberthint Threat Intelligence Team
+date: 2026-03-03
+modified: 2026-03-03
+
+tags:
+    - attack.persistence
+    - attack.privilege_escalation
+    - attack.t1547.001
+    - attack.t1053.005
+    - attack.t1548.002
+    - malware.karstorat
+logsource:
+    product: windows
+detection:
+    registry_persistence:
+        EventType: SetValue
+        TargetObject|contains: 'CurrentVersion\Run'
+        Details|contains: 'SecurityService.exe'
+    
+    scheduled_task:
+        EventID: 4698
+        TaskName: 'SystemCheck'
+        Command|contains|all:
+            - 'SecurityService.exe'
+            - 'C:\Users'
+            - 'AppData'
+    
+    uac_bypass_reg:
+        EventType: SetValue
+        TargetObject|contains: 'ms-settings\Shell\Open\command'
+        Details|contains: 'DelegateExecute'
+    
+    uac_bypass_proc:
+        Image|endswith: '\fodhelper.exe'
+    
+    condition: registry_persistence or scheduled_task or (uac_bypass_reg and uac_bypass_proc)
+falsepositives:
+    - Legitimate security software using similar names
+    - System administrators deploying tools with similar naming
+    - System administrators creating tasks with similar names
+    - Third-party software installation routines
+    - Legitimate Windows features using fodhelper
+    - Rare, but possible during system troubleshooting
+level: high
