@@ -1,0 +1,256 @@
+# Rule 1: brifutelectric.com domain traffic
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - C2 Domain brifutelectric.com detected";
+    flow:to_server,established;
+    content:"Host|3a|"; http_header;
+    content:"brifutelectric.com"; nocase; within:200;
+    sid:10000001;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001, T1102";
+    metadata:severity "CRITICAL";
+    metadata:reference "https://blog.seccops.com/svg-phishing-analysis";
+    metadata:hash_md5 "e3b5a03fac7092fa61129ab6d97cd20a";
+    metadata:hash_sha256 "4d98123fe95b1a4a318b28ee13bccf1dc45b3b3222b636341c569193c1425aed";
+)
+
+# Rule 2: poocheasta.biz.pl domain traffic
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - Redirect Domain poocheasta.biz.pl detected";
+    flow:to_server,established;
+    content:"Host|3a|"; http_header;
+    content:"poocheasta.biz.pl"; nocase; within:200;
+    sid:10000002;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+# Rule 3: pocaheasta.biz.pl domain traffic
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - Redirect Domain pocaheasta.biz.pl detected";
+    flow:to_server,established;
+    content:"Host|3a|"; http_header;
+    content:"pocaheasta.biz.pl"; nocase; within:200;
+    sid:10000003;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+#---------------------------------------
+# SUBDOMAINS - Specific C2 Endpoints
+#---------------------------------------
+
+# Rule 4: owncloud subdomain (C2/File Storage)
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - C2 Server owncloud.brifutelectric.com detected";
+    flow:to_server,established;
+    content:"Host|3a|"; http_header;
+    content:"owncloud.brifutelectric.com"; nocase; within:200;
+    sid:10000004;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1530";
+    metadata:severity "CRITICAL";
+)
+
+# Rule 5: mail C2 subdomains
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - Email C2 Subdomain detected";
+    flow:to_server,established;
+    content:"Host|3a|"; http_header;
+    pcre:"/Host\x3a[^\r\n]*(mail-bf1|mail-bf2|mail-al|mail-al2|mail-fl1)\.brifutelectric\.com/";
+    sid:10000005;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+# Rule 6: Cisco network infrastructure subdomains
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - Network Infrastructure Subdomain detected";
+    flow:to_server,established;
+    content:"Host|3a|"; http_header;
+    pcre:"/Host\x3a[^\r\n]*(ciscoorlando|ciscosarasota|ciscobirmingham)\.brifutelectric\.com/";
+    sid:10000006;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:severity "HIGH";
+)
+
+#---------------------------------------
+# MALICIOUS IP ADDRESSES
+#---------------------------------------
+
+# Rule 7: Main IP 75.112.181.146
+alert ip $HOME_NET any -> 75.112.181.146 any (
+    msg:"SVG PHISHING - Connection to Main C2 IP 75.112.181.146";
+    sid:10000007;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "CRITICAL";
+)
+
+# Rule 8: Secondary IP Block 72.31.126.0/23
+alert ip $HOME_NET any -> 72.31.126.0/23 any (
+    msg:"SVG PHISHING - Connection to Secondary C2 IP Block 72.31.126.0/23";
+    sid:10000008;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+# Rule 9: Tertiary IP Block 75.114.64.0/18
+alert ip $HOME_NET any -> 75.114.64.0/18 any (
+    msg:"SVG PHISHING - Connection to Tertiary C2 IP Block 75.114.64.0/18";
+    sid:10000009;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+# Rule 10: Individual IP Addresses
+alert ip $HOME_NET any -> [75.112.181.147,75.112.181.150,72.31.126.226,72.31.126.227,72.31.126.228,72.31.126.231,72.31.126.83,75.114.66.82] any (
+    msg:"SVG PHISHING - Connection to Individual C2 IP Address";
+    sid:10000010;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+#---------------------------------------
+# SUSPICIOUS PORTS
+#---------------------------------------
+
+# Rule 11: Suspicious Port 53 (DNS) traffic to C2 IPs
+alert udp $HOME_NET any -> [75.112.181.146,75.112.181.147,75.112.181.150,72.31.126.226,72.31.126.227,72.31.126.228,72.31.126.231,72.31.126.83,75.114.66.82] 53 (
+    msg:"SVG PHISHING - DNS Query to C2 Infrastructure";
+    sid:10000011;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "MEDIUM";
+)
+
+# Rule 12: Suspicious Port 15144 (Potential C2 Panel)
+alert tcp $HOME_NET any -> [75.112.181.146,75.112.181.147,75.112.181.150,72.31.126.226,72.31.126.227,72.31.126.228,72.31.126.231,72.31.126.83,75.114.66.82] 15144 (
+    msg:"SVG PHISHING - Potential C2 Panel Connection on Port 15144";
+    sid:10000012;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+# Rule 13: Suspicious Port 49152 (Custom Service)
+alert tcp $HOME_NET any -> [75.112.181.146,75.112.181.147,75.112.181.150,72.31.126.226,72.31.126.227,72.31.126.228,72.31.126.231,72.31.126.83,75.114.66.82] 49152 (
+    msg:"SVG PHISHING - Custom Service Connection on Port 49152";
+    sid:10000013;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1071.001";
+    metadata:severity "HIGH";
+)
+
+#---------------------------------------
+# EMAIL INFRASTRUCTURE DETECTION
+#---------------------------------------
+
+# Rule 14: Proofpoint Email Servers
+alert tcp $HOME_NET any -> $EXTERNAL_NET [25,587,465,993] (
+    msg:"SVG PHISHING - Connection to Proofpoint Email Servers";
+    flow:to_server,established;
+    content:"mx1-us1.ppe-hosted.com" or content:"mx2-us1.ppe-hosted.com" or content:"dispatch-us.ppe-hosted.com";
+    nocase;
+    sid:10000014;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:severity "MEDIUM";
+)
+
+# Rule 15: Mailchimp SPF Record
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (
+    msg:"SVG PHISHING - Mailchimp SPF Record Access";
+    flow:to_server,established;
+    content:"servers.mcsv.net"; nocase;
+    sid:10000015;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:severity "MEDIUM";
+)
+
+#---------------------------------------
+# HTTP PAYLOAD DETECTION
+#---------------------------------------
+
+# Rule 16: OwnCloud URL Pattern
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - OwnCloud C2 URL Pattern Detected";
+    flow:to_server,established;
+    content:"GET"; http_method;
+    content:"/owncloud/index.php/s/"; http_uri;
+    content:"RRnwnqmP8tTfAri"; http_uri;
+    sid:10000016;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1530";
+    metadata:severity "CRITICAL";
+)
+
+# Rule 17: XOR Key in HTTP Traffic
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - XOR Key Detected in HTTP Traffic";
+    flow:to_server,established;
+    content:"6795a9a7242893e6ef978723"; nocase;
+    sid:10000017;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:severity "CRITICAL";
+)
+
+# Rule 18: Email Pattern in URL
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - Email Address in URL Detected";
+    flow:to_server,established;
+    content:"accounting@brifutelectric.com"; nocase;
+    sid:10000018;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1566.002";
+    metadata:severity "CRITICAL";
+)
+
+# Rule 19: Malicious Full URL Pattern
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - Malicious Full URL Pattern Detected";
+    flow:to_server,established;
+    content:"js.poocheasta.biz.pl"; nocase;
+    content:"PlwCVnH5A9@ii"; distance:0;
+    content:"accounting@brifutelectric.com"; distance:0;
+    sid:10000019;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1566.002";
+    metadata:severity "CRITICAL";
+)
+
+# Rule 20: SVG File Download Detection
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (
+    msg:"SVG PHISHING - SVG File Download with Remittance_Advice Name";
+    flow:to_client,established;
+    content:"Content-Type|3a| image/svg+xml"; http_header;
+    content:"Remittance_Advice"; nocase;
+    sid:10000020;
+    rev:1;
+    metadata:date "2026-03-12";
+    metadata:mitre_attack "T1204.002";
+    metadata:severity "HIGH";
+)

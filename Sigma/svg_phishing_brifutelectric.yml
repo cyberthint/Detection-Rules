@@ -1,0 +1,144 @@
+title: SVG Phishing Malware Process Chain
+id: 4d98123f-e95b-1a4a-318b-28ee13bccf1d
+status: experimental
+description: Detects the process creation chain for SVG phishing malware (iexplore.exe -> msedge.exe)
+date: 2026/03/12
+modified: 2026/03/12
+references:
+    - https://blog.seccops.com/svg-phishing-analysis
+    - https://app.any.run/tasks/f14c7592-c4ec-410f-86b8-5155d1047ba8
+tags:
+    - attack.execution
+    - attack.t1204.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - ParentImage|endswith: '\iexplore.exe'
+          Image|endswith: '\msedge.exe'
+        - Image|endswith: '\iexplore.exe'
+          CommandLine|contains: 'Remittance_Advice.svg'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+---
+title: SVG Phishing Malware File Drop
+id: 4d98123f-e95b-1a4a-318b-28ee13bccf2d
+status: experimental
+description: Detects the SVG file being dropped in Temp folder
+date: 2026/03/12
+references:
+    - https://blog.seccops.com/svg-phishing-analysis
+tags:
+    - attack.execution
+    - attack.t1204.002
+logsource:
+    category: file_event
+    product: windows
+detection:
+    selection:
+        TargetFilename|contains: '\Temp\Remittance_Advice.svg'
+    condition: selection
+falsepositives:
+    - Legitimate SVG files with similar names
+level: medium
+---
+title: SVG Phishing Malware Network Connection
+id: 4d98123f-e95b-1a4a-318b-28ee13bccf3d
+status: experimental
+description: Detects network connections to malicious infrastructure
+date: 2026/03/12
+references:
+    - https://blog.seccops.com/svg-phishing-analysis
+tags:
+    - attack.command_and_control
+    - attack.t1071.001
+logsource:
+    category: network_connection
+    product: windows
+detection:
+    selection:
+        DestinationHostname|endswith:
+            - 'brifutelectric.com'
+            - 'poocheasta.biz.pl'
+            - 'pocaheasta.biz.pl'
+        Initiated: 'true'
+    condition: selection
+falsepositives:
+    - Legitimate connections
+level: critical
+---
+title: SVG Phishing Malware DNS Query
+id: 4d98123f-e95b-1a4a-318b-28ee13bccf4d
+status: experimental
+description: Detects DNS queries to malicious domains
+date: 2026/03/12
+references:
+    - https://blog.seccops.com/svg-phishing-analysis
+tags:
+    - attack.command_and_control
+    - attack.t1071.001
+logsource:
+    category: dns_query
+    product: windows
+detection:
+    selection:
+        QueryName|endswith:
+            - 'brifutelectric.com'
+            - 'poocheasta.biz.pl'
+            - 'pocaheasta.biz.pl'
+    condition: selection
+falsepositives:
+    - None expected
+level: high
+---
+title: SVG Phishing Malware PowerShell Decode Attempt
+id: 4d98123f-e95b-1a4a-318b-28ee13bccf5d
+status: experimental
+description: Detects PowerShell decoding attempts
+date: 2026/03/12
+references:
+    - https://blog.seccops.com/svg-phishing-analysis
+tags:
+    - attack.defense_evasion
+    - attack.t1027
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        CommandLine|contains:
+            - 'base64'
+            - 'fromCharCode'
+            - '6795a9a7242893e6ef978723'
+    condition: selection
+falsepositives:
+    - Legitimate PowerShell scripting
+level: low
+---
+title: SVG Phishing Malware Registry Indicators
+id: 4d98123f-e95b-1a4a-318b-28ee13bccf6d
+status: experimental
+description: Detects registry events related to the campaign
+date: 2026/03/12
+references:
+    - https://blog.seccops.com/svg-phishing-analysis
+tags:
+    - attack.discovery
+    - attack.t1082
+logsource:
+    category: registry_event
+    product: windows
+detection:
+    selection:
+        TargetObject|contains: 'Microsoft\Office'
+        Details|contains: 'brifutelectric.com'
+    condition: selection
+falsepositives:
+    - Legitimate Office configuration
+level: low
